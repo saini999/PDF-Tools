@@ -47,11 +47,14 @@
         <?php include 'pdf.php'; ?>
       </div>
 
-      <!-- Passport Photo Section (hidden by default) -->
+      <!-- Passport Photo Section -->
       <div id="passportSection" class="hidden">
         <?php include 'passport.php'; ?>
       </div>
-      <div id="signatureSection" class="hidden"> <?php include 'signature.php'; ?> </div>
+      <!-- Signature Extractor Section -->
+      <div id="signatureSection" class="hidden"> 
+        <?php include 'signature.php'; ?> 
+      </div>
 
     </div>
 

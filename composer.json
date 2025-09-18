@@ -1,0 +1,13 @@
+{
+  "name": "noor/pdf-compressor",
+  "description": "A web-based PDF compressor with Redis job queue and LibreOffice backend.",
+  "type": "project",
+  "require": {
+    "predis/predis": "^2.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}

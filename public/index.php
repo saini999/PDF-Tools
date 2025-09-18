@@ -60,9 +60,9 @@
 
   </main>
 
-  <script src="app.js?v=103"></script>
-  <script src="passport.js?v=103"></script>
-  <script src="signature.js?v=103"></script>
+  <script src="app.js?v=104"></script>
+  <script src="passport.js?v=104"></script>
+  <script src="signature.js?v=104"></script>
 
   <!-- Script to toggle sections -->
   <script>

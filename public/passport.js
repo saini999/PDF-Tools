@@ -31,6 +31,55 @@
     passportLogsList.scrollTop = passportLogsList.scrollHeight;
   }
 
+  // Downscale toggle button logic
+  const btn = document.getElementById("enable_downscale_btn");
+  const icon = document.getElementById("enable_downscale_icon");
+  const hiddenInput = document.getElementById("enable_downscale");
+  let enabled = false;
+
+  function updateToggle() {
+    if (enabled) {
+      btn.classList.add(
+        "hover:bg-red-800",
+        "focus:ring-green-300",
+        "border-green-700",
+        "bg-green-600"
+      );
+      btn.classList.remove(
+        "border-red-700",
+        "hover:bg-green-700",
+        "focus:ring-red-300",
+        "bg-red-600"
+      );
+      icon.innerHTML = "&#10003;"; // check mark
+      hiddenInput.value = "1";
+    } else {
+      btn.classList.remove(
+        "hover:bg-red-800",
+        "focus:ring-green-300",
+        "border-green-700",
+        "bg-green-600"
+      );
+      btn.classList.add(
+        "border-red-700",
+        "hover:bg-green-700",
+        "focus:ring-red-300",
+        "bg-red-600"
+      );
+      icon.innerHTML = "&#10006;"; // X mark
+      hiddenInput.value = "0";
+    }
+  }
+
+  btn.addEventListener("click", function (e) {
+    e.preventDefault();
+    enabled = !enabled;
+    updateToggle();
+  });
+
+  // Initialize toggle state
+  updateToggle();
+
   // Poll server for passport compression logs
   async function pollPassportLogs(jobId) {
     try {
@@ -174,6 +223,7 @@
           "target_size",
           document.getElementById("passport_target_size").value
         );
+        fd.append("enable_downscale", enabled);
 
         try {
           const res = await fetch("passport_process.php", {

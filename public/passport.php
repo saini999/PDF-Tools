@@ -23,6 +23,14 @@
             font-size: 0.875rem;
             margin-top: 1rem;
         }
+
+        .downscale-btn .icon {
+            margin-right: 0.5em;
+            font-size: 1.2em;
+            display: inline-block;
+            width: 1.2em;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -41,6 +49,15 @@
                     <input type="number" name="target_size" id="passport_target_size" value="40"
                         class="block w-full text-gray-600 border rounded p-2" required />
                 </div>
+                <!-- Downscale toggle button -->
+                <div class="bg-white rounded-lg shadow-lg p-4 text-gray-700 text-sm">
+                    <button type="button" id="enable_downscale_btn" class="text-white hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                        <span class="icon" id="enable_downscale_icon">&#10006;</span>
+                        Downscaling
+                    </button>
+                    <input type="hidden" name="enable_downscale" id="enable_downscale" value="0" />
+                    <p>Downscales Images (Reduces Resolution) instead of Compressing</p>
+                </div>
                 <button type="submit" id="processBtn"
                     class="w-full h-14 rounded-xl bg-indigo-600 text-white font-semibold text-lg">Upload &
                     Detect</button>
@@ -56,7 +73,7 @@
             </div>
 
             <div id="passportStats" class="bg-white rounded-lg shadow-lg p-4 text-gray-700 text-sm hidden">
-                <h2 class="font-semibold text-lg mb-2 text-indigo-600">📊 Stats</h2>
+                <h2 class="font-semibold text-lg mb-2 text-indigo-600">ðŸ“Š Stats</h2>
                 <p><strong>Total Extracted:</strong> <span id="passportTotalConverted">0</span></p>
                 <p><strong>Extracted Today:</strong> <span id="passportTodayConverted">0</span></p>
                 <p><strong>Current Queue:</strong> <span id="passportQueueCount">0</span></p>
@@ -75,7 +92,6 @@
             </div>
         </div>
     </div>
-
 
     <script>
         // Example: function to append messages to log

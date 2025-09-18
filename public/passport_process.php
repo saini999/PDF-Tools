@@ -8,6 +8,7 @@ if (!isset($_POST['job_id']) || !isset($_FILES['crop'])) {
 
 $jobId = $_POST['job_id'];
 $targetSize = isset($_POST['target_size']) ? intval($_POST['target_size']) * 1024 : 50 * 1024;
+$enableDownscale = isset($_POST['enable_downscale']) && $_POST['enable_downscale'] == '1';
 $jobKey = "job:$jobId";
 
 // Paths
@@ -60,38 +61,73 @@ if ($currentSize < $targetSize * 0.95) {
     }
 }
 
-// Step 3: Compress only if needed
+// Step 3: Downscale or Compress if needed
 if ($currentSize > $targetSize * 1.05) {
-    logProgress("Starting compression...", $jobKey);
-    $minQ = 10;
-    $maxQ = 95;
-    $bestQuality = $maxQ;
-    $bestDiff = PHP_INT_MAX;
-
-    for ($q = $maxQ; $q >= $minQ; $q -= 5) {
-        $img->setImageCompressionQuality($q);
-        $img->writeImage($outputPath);
-        clearstatcache();
-        $size = filesize($outputPath);
-
-        logProgress("Trying quality $q → size: " . round($size / 1024) . " KB", $jobKey);
-
-        $diff = abs($size - $targetSize);
-        if ($diff < $bestDiff) {
-            $bestDiff = $diff;
-            $bestQuality = $q;
+    if ($enableDownscale) {
+        logProgress("Downscaling enabled. Attempting to resize image to approach target size...", $jobKey);
+        $scaleFactor = 0.95; // 5% downscale each iteration
+        $minWidth = 100; // Prevent too small
+        $minHeight = 100;
+        while ($currentSize > $targetSize * 1.05) {
+            $width = $img->getImageWidth();
+            $height = $img->getImageHeight();
+            $newWidth = max(intval($width * $scaleFactor), $minWidth);
+            $newHeight = max(intval($height * $scaleFactor), $minHeight);
+            if ($newWidth == $width && $newHeight == $height) {
+                break; // Can't downscale further
+            }
+            $img->resizeImage($newWidth, $newHeight, Imagick::FILTER_LANCZOS, 1);
+            $img->writeImage($outputPath);
+            clearstatcache();
+            $currentSize = filesize($outputPath);
+            logProgress("Downscaled to {$newWidth}x{$newHeight} → size: " . round($currentSize / 1024) . " KB", $jobKey);
+            if ($newWidth == $minWidth || $newHeight == $minHeight) {
+                break; // Prevent infinite loop
+            }
         }
-
-        // Stop early if within 95% of target
-        if ($size <= $targetSize * 1.05 && $size >= $targetSize * 0.95) {
-            logProgress("Target size reached at quality $q", $jobKey);
-            break;
+        // After downscaling, check if still needs compression
+        clearstatcache();
+        $currentSize = filesize($outputPath);
+        if ($currentSize > $targetSize * 1.05) {
+            logProgress("Still above target after downscaling, starting compression...", $jobKey);
+            // fall through to compression below
+        } else {
+            logProgress("Target size reached by downscaling.", $jobKey);
         }
     }
+    // Compression (always run if still above target, or if downscaling not enabled)
+    if (!$enableDownscale || $currentSize > $targetSize * 1.05) {
+        logProgress("Starting compression...", $jobKey);
+        $minQ = 10;
+        $maxQ = 95;
+        $bestQuality = $maxQ;
+        $bestDiff = PHP_INT_MAX;
 
-    logProgress("Final quality: $bestQuality", $jobKey);
-    $img->setImageCompressionQuality($bestQuality);
-    $img->writeImage($outputPath);
+        for ($q = $maxQ; $q >= $minQ; $q -= 5) {
+            $img->setImageCompressionQuality($q);
+            $img->writeImage($outputPath);
+            clearstatcache();
+            $size = filesize($outputPath);
+
+            logProgress("Trying quality $q → size: " . round($size / 1024) . " KB", $jobKey);
+
+            $diff = abs($size - $targetSize);
+            if ($diff < $bestDiff) {
+                $bestDiff = $diff;
+                $bestQuality = $q;
+            }
+
+            // Stop early if within 95% of target
+            if ($size <= $targetSize * 1.05 && $size >= $targetSize * 0.95) {
+                logProgress("Target size reached at quality $q", $jobKey);
+                break;
+            }
+        }
+
+        logProgress("Final quality: $bestQuality", $jobKey);
+        $img->setImageCompressionQuality($bestQuality);
+        $img->writeImage($outputPath);
+    }
 } else {
     logProgress("No compression needed, already within target size.", $jobKey);
 }

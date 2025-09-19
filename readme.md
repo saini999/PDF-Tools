@@ -18,7 +18,19 @@ PDF Tools\
 │   ├── signature_process.php    # Signature extraction backend
 │   ├── app.js                   # General JS (UI, AJAX, polling)
 │   ├── passport.js              # Passport-specific JS
-│   └── signature.js             # Signature-specific JS
+│   ├── signature.js             # Signature-specific JS
+│   ├── download.php             # Handles file downloads
+│   ├── upload.php               # Handles generic uploads
+│   ├── stats.php                # Returns stats for dashboard
+│   ├── status.php               # Returns job status/progress
+│   ├── passport_upload.php      # Handles passport photo uploads
+│   ├── passport_status.php      # Passport job status/progress
+│   ├── signature_upload.php     # Handles signature uploads
+│   ├── signature_status.php     # Signature job status/progress
+│   ├── pdf.png                  # Favicon
+│   ├── face_detect.py               # Python script for face detection (passport photos)
+│   └── css/
+│       └── ...                  # Custom CSS files (if any)
 ├── workers/
 │   ├── worker.php               # Ghostscript PDF worker (systemd service, multi-instance)
 │   └── cleaner.php              # Cleans up temp files (cron job)

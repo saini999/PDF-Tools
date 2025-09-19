@@ -1,0 +1,15 @@
+[Unit]
+Description=PDF Compression Worker on CPU %i
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/site/public_html/workers
+ExecStart=/usr/bin/taskset -c %i /usr/bin/php /path/to/site/public_html/workers/worker.php
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

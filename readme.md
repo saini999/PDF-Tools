@@ -28,7 +28,7 @@ PDF Tools\
 │   ├── signature_upload.php     # Handles signature uploads
 │   ├── signature_status.php     # Signature job status/progress
 │   ├── pdf.png                  # Favicon
-│   ├── face_detect.py               # Python script for face detection (passport photos)
+│   ├── face_detect.py           # Python script for face detection (passport photos)
 │   └── css/
 │       └── ...                  # Custom CSS files (if any)
 ├── workers/

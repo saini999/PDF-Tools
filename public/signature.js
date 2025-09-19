@@ -44,6 +44,52 @@
     }
   }
 
+  // Downscale toggle button logic
+  const btnPng = document.getElementById("enable_png_btn");
+  const icon = document.getElementById("enable_png_icon");
+  const hiddenInput = document.getElementById("output_format");
+  let enabled = false;
+
+  function updateToggle() {
+    if (enabled) {
+      btnPng.classList.add(
+        "hover:bg-red-800",
+        "focus:ring-green-300",
+        "border-green-700",
+        "bg-green-600"
+      );
+      btnPng.classList.remove(
+        "border-red-700",
+        "hover:bg-green-700",
+        "focus:ring-red-300",
+        "bg-red-600"
+      );
+      icon.innerHTML = "&#10003;"; // check mark
+      hiddenInput.value = "png";
+    } else {
+      btnPng.classList.remove(
+        "hover:bg-red-800",
+        "focus:ring-green-300",
+        "border-green-700",
+        "bg-green-600"
+      );
+      btnPng.classList.add(
+        "border-red-700",
+        "hover:bg-green-700",
+        "focus:ring-red-300",
+        "bg-red-600"
+      );
+      icon.innerHTML = "&#10006;"; // X mark
+      hiddenInput.value = "jpg";
+    }
+  }
+
+  btnPng.addEventListener("click", function (e) {
+    e.preventDefault();
+    enabled = !enabled;
+    updateToggle();
+  });
+
   function initSignatureTab() {
     // Avoid re-initializing
     if (window.signatureInitialized) return;
@@ -116,6 +162,10 @@
         fd.append(
           "target_size",
           document.getElementById("signatureTargetSize").value
+        );
+        fd.append(
+          "output_format",
+          document.getElementById("output_format").value
         );
 
         try {

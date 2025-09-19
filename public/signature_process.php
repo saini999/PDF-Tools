@@ -6,12 +6,16 @@ if (!isset($_POST['job_id']) || !isset($_FILES['crop']) || !isset($_POST['bgColo
     exit;
 }
 
+
+
 $jobId = $_POST['job_id'];
 $bgColor = $_POST['bgColor']; // hex color
 $targetSize = intval($_POST['target_size']) * 1024; // convert KB → bytes
 $jobKey = "job:$jobId";
+$isReqPng = isset($_POST['output_format']) && $_POST['output_format'] === 'png';
 
-$outputPath = PROCESSED_DIR . $jobId . '.png';
+
+$outputPath = PROCESSED_DIR . $jobId . ($isReqPng ? '.png' : '.jpg');
 move_uploaded_file($_FILES['crop']['tmp_name'], $outputPath);
 
 function logProgress($msg, $jobKey)
@@ -40,12 +44,25 @@ try {
     logProgress("Removed background with fuzz tolerance", $jobKey);
 
     // Ensure PNG output (with transparency)
-    $img->setImageFormat("png");
+    if ($isReqPng) {
+        $img->setImageFormat('png'); // keeps transparency
+    } else {
+        $img->setImageFormat('jpeg');
+        $white = new Imagick();
+        $white->newImage($img->getImageWidth(), $img->getImageHeight(), new ImagickPixel('white'));
+        $white->setImageFormat('jpeg');
+
+        // Composite the transparent PNG over white background
+        $white->compositeImage($img, Imagick::COMPOSITE_OVER, 0, 0);
+
+        $img->destroy();   // free old image
+        $img = $white;     // replace with flattened version
+    }
     $img->writeImage($outputPath);
     clearstatcache();
     $currentSize = filesize($outputPath);
 
-    logProgress("Initial PNG size: " . round($currentSize / 1024) . " KB", $jobKey);
+    logProgress("Initial" . ($isReqPng ? "PNG" : "JPEG") . "size: " . round($currentSize / 1024) . " KB", $jobKey);
     logProgress("Target size: " . round($targetSize / 1024) . " KB", $jobKey);
 
     // If too small → upscale
@@ -72,7 +89,7 @@ try {
 
     // If too large → compress
     if ($currentSize > $targetSize * 1.05) {
-        logProgress("Compressing signature PNG…", $jobKey);
+        logProgress("Compressing signature " . ($isReqPng ? "PNG" : "JPEG"), $jobKey);
         while ($currentSize > $targetSize * 1.05) {
             $width = $img->getImageWidth();
             $height = $img->getImageHeight();

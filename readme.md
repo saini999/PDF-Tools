@@ -7,7 +7,7 @@ A modern, user-friendly web suite for compressing PDFs, extracting passport phot
 ## 📂 Directory Structure
 
 ```text
-f:\GadSite\PDF Tools\
+PDF Tools\
 ├── public/
 │   ├── index.php                # Main entry, navigation, and section toggling
 │   ├── pdf.php                  # PDF compression UI
